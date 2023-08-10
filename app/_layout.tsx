@@ -1,9 +1,10 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { SplashScreen, Stack } from 'expo-router';
+import { SplashScreen, Stack, router, usePathname } from 'expo-router';
 import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 
 import "../global.css";
 
@@ -42,7 +43,17 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-  console.log(colorScheme)
+
+  const path = usePathname()
+  async function getValueFor(key: string) {
+    let result = await SecureStore.getItemAsync(key);
+    if (result?.includes("keep")) {
+      if (path === "/" || path === "") {
+        router.push("/(tabs)/pages/Main")
+      }
+    }
+  }
+  getValueFor("userDetails")
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

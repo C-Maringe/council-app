@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, Button } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 
 export default function BarCodeScannerCom() {
   const [hasPermission, setHasPermission] = useState(false);
@@ -17,10 +17,11 @@ export default function BarCodeScannerCom() {
 
   const handleBarCodeScanned = ({ type, data }: any) => {
     setScanned(true);
+    // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
     setTimeout(() => {
       setScanned(false)
-    }, 1000)
-    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+      return <Redirect href="/appinfo" />;
+    }, 3000)
   };
 
   if (hasPermission === null) {

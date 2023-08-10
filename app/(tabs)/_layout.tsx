@@ -1,8 +1,8 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { AntDesign } from '@expo/vector-icons';
-import { Link, Tabs } from 'expo-router';
+import { Link, Tabs, router } from 'expo-router';
 import { Pressable, useColorScheme } from 'react-native';
-
+import * as SecureStore from 'expo-secure-store';
 import Colors from '@/constants/Colors';
 
 function TabBarIcon(props: {
@@ -50,17 +50,18 @@ export default function TabLayout() {
           tabBarStyle: { display: 'none' },
           href: null,
           headerRight: () => (
-            <Link href="/" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <AntDesign
-                    name="logout"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }} />
-                )}
-              </Pressable>
-            </Link>
+            <Pressable
+              onPress={() => {
+                SecureStore.deleteItemAsync("userDetails").then(() => { router.push("/") })
+              }}>
+              {({ pressed }) => (
+                <AntDesign
+                  name="logout"
+                  size={25}
+                  color={Colors[colorScheme ?? 'light'].text}
+                  style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }} />
+              )}
+            </Pressable>
           ),
         }}
       />
