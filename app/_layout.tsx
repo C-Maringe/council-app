@@ -4,12 +4,14 @@ import { useFonts } from 'expo-font';
 import { SplashScreen, Stack, router, usePathname } from 'expo-router';
 import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
 
 import "../global.css";
+import { Provider } from 'react-redux';
+import { createStore } from 'redux';
+import rootReducer from '../state/rootReducer'
 
 export {
-  ErrorBoundary,
+  ErrorBoundary
 } from 'expo-router';
 
 export const unstable_settings = {
@@ -43,24 +45,16 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-
-  const path = usePathname()
-  async function getValueFor(key: string) {
-    let result = await SecureStore.getItemAsync(key);
-    if (result?.includes("keep")) {
-      if (path === "/" || path === "") {
-        router.push("/(tabs)/pages/Main")
-      }
-    }
-  }
-  getValueFor("userDetails")
+  const store = createStore(rootReducer)
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="appinfo" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
+    <Provider store={store}>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="appinfo" options={{ presentation: 'modal' }} />
+        </Stack>
+      </ThemeProvider>
+    </Provider>
   );
 }

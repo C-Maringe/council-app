@@ -1,25 +1,27 @@
-import React, { useState } from 'react'
-import { View, Text, TextInput, Pressable, ActivityIndicator } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native'
 import * as SecureStore from 'expo-secure-store';
 import { router, useFocusEffect, usePathname } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
+
+async function getValueFor(key: string) {
+    let result = await SecureStore.getItemAsync(key);
+    if (result?.includes("keep")) {
+        return JSON.parse(result?.split("keep")[0])
+    } else {
+        return result
+    }
+}
 
 const MakePayment = () => {
 
-    async function getValueFor(key: string) {
-        let result = await SecureStore.getItemAsync(key);
-        if (result?.includes("keep")) {
-            return JSON.parse(result?.split("keep")[0])
-        } else {
-            return result
-        }
-    }
+    const selector = useSelector(state => state.LicenceData.data)
 
     const [loader, setLoader] = useState(false);
 
     const [amount, setAmount] = useState("")
-    const [employee_id, setemployee_id] = useState(0)
     const [amountError, setAmountError] = useState(false);
     const [message, setMessage] = useState("");
 
@@ -36,7 +38,10 @@ const MakePayment = () => {
 
     const path = usePathname()
     const [userDetails, setUserDetails] = useState({ data: { id: 0 } });
-    getValueFor("userDetails").then((response) => { setUserDetails(response) }).catch((error) => { console.log(error) })
+
+    useEffect(() => {
+        getValueFor("userDetails").then((response) => { setUserDetails(response) }).catch((error) => { console.log(error) })
+    }, [])
 
     const handleMakePayment = () => {
         try {
@@ -55,7 +60,7 @@ const MakePayment = () => {
                         if (response.data.code === 201) {
                             setMessage("Transaction Completed successfully...")
                             setTimeout(() => {
-                                router.push("/")
+                                router.push("/(tabs)/pages/Main")
                             }, 2000)
                         } else {
                             setMessage("Failed, please contact admin")
@@ -86,12 +91,30 @@ const MakePayment = () => {
             </View>
 
             <View className='p-8 w-full max-w-sm flex items-center'>
-                <Text className='w-[80%] text-sm text-center font-bold mb-6 text-slate-900 flex justify-center'>
-                    Enter payment details
+                <Text className='w-[80%] text-sm text-center font-bold mb-4 text-slate-900 flex justify-center'>
+                    Business details
                 </Text>
+                <View className='flex flex-col justify-center items-center ml-4 w-full mb-2'>
+                    <View className='flex flex-row'>
+                        <Text className='w-[25%]'>Name:</Text>
+                        <Text className='w-[75%]'>{selector?.data?.name}</Text>
+                    </View>
+                    <View className='flex flex-row mt-1 w-full'>
+                        <Text className='w-[25%]'>Address:</Text>
+                        <Text className='flex flex-wrap w-[75%]'>{selector?.data?.address}</Text>
+                    </View>
+                    <View className='flex flex-row mt-1'>
+                        <Text className='w-[25%]'>Code:</Text>
+                        <Text className='w-[75%]'>{selector?.data?.code}</Text>
+                    </View>
+                    <View className='flex flex-row mt-1'>
+                        <Text className='w-[25%]'>Status:</Text>
+                        <Text className={`w-[75%]`}>{selector?.data?.status !== null ? selector?.data?.status : "Status not available!"}</Text>
+                    </View>
+                </View>
 
                 {message !== "" && !loader &&
-                    <Text className={`mb-4 border shadow-md border-slate-200 rounded-md text-center p-2 ${!message.includes("successfully") ? "text-red-500 bg-red-100" : "bg-green-400"}`}>
+                    <Text className={`mt-2 mb-4 border shadow-md border-slate-200 rounded-md text-center p-2 ${!message.includes("successfully") ? "text-red-500 bg-red-100" : "bg-green-400"}`}>
                         {message}
                     </Text>}
 
@@ -100,14 +123,15 @@ const MakePayment = () => {
                     <TextInput
                         className='ml-2 border-l pl-2 w-full'
                         placeholderTextColor="#000"
-                        placeholder="Enter code"
+                        placeholder="Enter amount"
+                        keyboardType='number-pad'
                         value={amount}
                         onChangeText={(text) => setAmount(text)}
                         onFocus={() => { setAmountError(false) }}
                     />
                 </View>
                 {amountError && <Text className='text-red-500 text-xs '>Please Enter a valid number input!</Text>}
-                <Pressable
+                <TouchableOpacity
                     onPress={() => {
                         if (!loader) {
                             handleMakePayment()
@@ -115,11 +139,11 @@ const MakePayment = () => {
                     }}
                     className={`h-12 mt-6 w-full ${loader && "bg-blue-100"} ${amountError ? "border-red-400 bg-red-300" : "border-slate-200"} border border-slate-200 rounded-md flex flex-row justify-center items-center px-6`}
                 >
-                    <View className={`flex-1 flex flex-row justify-center items-center ${loader && "bg-blue-100"} ${amountError ? "border-red-400 bg-red-300" : "border-slate-200"}`}>
+                    <View className={`flex-1 flex flex-row justify-center items-center ${loader && "bg-blue-100"} ${amountError ? "border-red-400" : "border-slate-200"}`}>
                         {loader && <ActivityIndicator size="small" color="blue" className='mr-8' />}
                         <Text className='dark:text-white text-base font-medium'>{loader ? "Processing..." : "Submit"}</Text>
                     </View>
-                </Pressable>
+                </TouchableOpacity>
             </View>
         </View >
     )

@@ -1,6 +1,6 @@
 import { Feather } from '@expo/vector-icons'
 import React, { useState } from 'react'
-import { View, Text, TextInput, Pressable, ScrollView, ActivityIndicator } from 'react-native'
+import { View, Text, TextInput, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native'
 import { Entypo } from '@expo/vector-icons';
 import { Fontisto } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
@@ -8,6 +8,7 @@ import { EvilIcons } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { router } from 'expo-router';
+import { useSelector } from 'react-redux';
 
 const RegisterBusiness = () => {
 
@@ -106,12 +107,12 @@ const RegisterBusiness = () => {
     }
 
     return (
-        <ScrollView contentContainerStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-
+        <ScrollView style={{ flex: 1 }}>
             <View className='p-8 w-full max-w-sm flex items-center'>
                 <Text className='w-[80%] text-sm text-center font-bold mb-6 text-slate-900 flex justify-center'>
-                    Enter businness details
+                    Businness details
                 </Text>
+                
                 {message !== "" && !loader &&
                     <Text className={`mb-4 border shadow-md border-slate-200 rounded-md text-center p-2 ${!message.includes("registered") ? "text-red-500 bg-red-100" : "bg-green-400"}`}>
                         {message}
@@ -194,7 +195,7 @@ const RegisterBusiness = () => {
                         onFocus={() => { setPhoneError(false) }}
                     />
                 </View>
-                <Pressable
+                <TouchableOpacity
                     onPress={() => {
                         if (!loader) {
                             handleRegisterBusiness()
@@ -202,13 +203,13 @@ const RegisterBusiness = () => {
                     }}
                     className={`h-12 mt-6 w-full ${loader && "bg-blue-100"} ${nameError || phoneError || typeError || codeError || geo_locationError || addressError || emailError ? "border-red-400 bg-red-300" : "border-slate-200"} border border-slate-200 rounded-md flex flex-row justify-center items-center px-6`}
                 >
-                    <View className={`flex-1 flex flex-row justify-center items-center ${loader && "bg-blue-100"} ${nameError || phoneError || typeError || codeError || geo_locationError || addressError || emailError ? "border-red-400 bg-red-300" : "border-slate-200"}`}>
+                    <View className={`flex-1 flex flex-row justify-center items-center ${loader && "bg-blue-100"} ${nameError || phoneError || typeError || codeError || geo_locationError || addressError || emailError ? "border-red-400 " : "border-slate-200"}`}>
                         {loader && <ActivityIndicator size="small" color="blue" className='mr-8' />}
                         <Text className='dark:text-white text-base font-medium'>{loader ? "Processing..." : "Submit"}</Text>
                     </View>
-                </Pressable>
+                </TouchableOpacity>
             </View >
-        </ScrollView >
+        </ScrollView>
     )
 }
 

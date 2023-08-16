@@ -1,7 +1,7 @@
 import { Text, View } from '@/components/Themed';
-import { Link, useFocusEffect, usePathname } from 'expo-router';
+import { Link, useFocusEffect, useNavigation, usePathname } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, TextInput } from 'react-native';
+import { ActivityIndicator, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import Checkbox from 'expo-checkbox';
 import { Feather } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -15,15 +15,29 @@ async function save(key: string, value: string) {
 
 const Login = () => {
 
+  const navigation = useNavigation()
+  const [isReady, setIsReady] = useState(false)
+
+  navigation.addListener('state', () => {
+    setIsReady(true)
+  })
+
   const path = usePathname()
   async function getValueFor(key: string) {
     let result = await SecureStore.getItemAsync(key);
+    console.log(result)
     if (result?.includes("keep")) {
       if (path === "/" || path === "") {
         router.push("/(tabs)/pages/Main")
       }
     }
   }
+
+  useEffect(() => {
+    if (isReady) {
+      getValueFor("userDetails")
+    }
+  }, [isReady])
 
   const [isChecked, setChecked] = useState(false);
   const [loader, setLoader] = useState(false);
@@ -32,10 +46,6 @@ const Login = () => {
   const [phoneNumberError, setPhoneNumberError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    getValueFor("userDetails")
-  }, [])
 
   useFocusEffect(
     React.useCallback(() => {
@@ -116,6 +126,7 @@ const Login = () => {
             placeholderTextColor="#000"
             placeholder="Enter phone number"
             value={phoneNumber}
+            keyboardType='number-pad'
             onChangeText={(text) => setPhoneNumber(text)}
             onFocus={() => { setPhoneNumberError(false) }}
           />
@@ -128,6 +139,7 @@ const Login = () => {
             className='ml-2 border-l pl-2 w-full'
             placeholderTextColor="#000"
             placeholder="Enter password"
+            secureTextEntry={true}
             value={password}
             onChangeText={(text) => setPassword(text)}
           />
@@ -142,7 +154,7 @@ const Login = () => {
               onValueChange={setChecked}
               color={isChecked ? 'blue' : undefined}
             />
-            <Pressable
+            <TouchableOpacity
               onPress={() => {
                 if (!isChecked) {
                   setChecked(true)
@@ -151,15 +163,15 @@ const Login = () => {
                 }
               }}>
               <Text className='dark:text-white text-slate-900'>Remember me</Text>
-            </Pressable>
+            </TouchableOpacity>
           </View>
           <Link href="/(tabs)/auth/ForgotPassword" asChild>
-            <Pressable>
+            <TouchableOpacity>
               <Text className='dark:text-white text-blue-400 font-bold'>Reset password</Text>
-            </Pressable>
+            </TouchableOpacity>
           </Link>
         </View>
-        <Pressable
+        <TouchableOpacity
           onPress={() => {
             if (!loader) {
               handleLogin();
@@ -167,11 +179,11 @@ const Login = () => {
           }}
           className={`h-12 border ${loader && "bg-blue-100"} ${passwordError || phoneNumberError ? "border-red-400 bg-red-300" : "border-slate-200"} rounded-md flex flex-row justify-center items-center px-6`}
         >
-          <View className={`flex-1 flex flex-row justify-center items-center ${loader && "bg-blue-100"} ${passwordError || phoneNumberError ? "border-red-400 bg-red-300" : "border-slate-200"}`}>
+          <View className={`flex-1 flex flex-row justify-center items-center ${passwordError || phoneNumberError ? "border-red-400 bg-red-300" : "border-slate-200"}`}>
             {loader && <ActivityIndicator size="small" color="blue" className='mr-8' />}
             <Text className={`dark:text-white text-base font-medium `}>{loader ? "Processing..." : "Login"}</Text>
           </View>
-        </Pressable>
+        </TouchableOpacity>
       </View>
     </View>
   );

@@ -1,15 +1,18 @@
-import { View, Text, Pressable, TextInput, ActivityIndicator } from 'react-native'
+import { View, Text, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native'
 import React, { useState } from 'react'
 import { Link, router, useFocusEffect } from 'expo-router'
 import { AntDesign } from '@expo/vector-icons'
 import axios from 'axios'
 import * as SecureStore from 'expo-secure-store';
+import { useDispatch, useSelector } from 'react-redux'
 
 async function save(key: string, value: string) {
     await SecureStore.setItemAsync(key, value);
 }
 
 const Main = () => {
+
+    const dispatch = useDispatch()
 
     const [loader, setLoader] = useState(false);
     const [checkBusinessMethod, setCheckBusinessMethod] = useState(false)
@@ -39,6 +42,7 @@ const Main = () => {
                 .then((response) => {
                     setLoader(false)
                     if (response.data.code === 200) {
+                        dispatch({ type: "DISPATCH_LICENCE_DATA", payload: response.data })
                         setMessage("Business details successfully retrieved.")
                         setTimeout(() => {
                             router.push(`/MakePayment/${response.data.data.id}`)
@@ -69,27 +73,27 @@ const Main = () => {
             </View>
 
             <View className='p-8 w-full max-w-sm'>
-                <Pressable
+                <TouchableOpacity
                     onPress={() => {
-                        setCheckBusinessMethod(true)
+                        setCheckBusinessMethod(!checkBusinessMethod)
                     }}
                     className='h-12 border border-slate-200 rounded-md flex flex-row justify-center items-center px-6'
                 >
                     <View className='flex-1 flex items-center'>
                         <Text className='dark:text-white text-base font-medium'>Check business status</Text>
                     </View>
-                </Pressable>
+                </TouchableOpacity>
                 {checkBusinessMethod &&
                     <View className='mt-4 w-full max-w-sm flex flex-row justify-between'>
-                        <Pressable onPress={() => {
+                        <TouchableOpacity onPress={() => {
                             router.push("/Scanner")
                         }}
                             className='h-12 w-[49%] border border-slate-200 rounded-md flex flex-row justify-center items-center'>
                             <View className='flex-1 flex items-center'>
                                 <Text className='dark:text-white text-base font-medium'>Scan</Text>
                             </View>
-                        </Pressable>
-                        <Pressable
+                        </TouchableOpacity>
+                        <TouchableOpacity
                             onPress={() => {
                                 setShowInputMethod(true)
                             }}
@@ -97,7 +101,7 @@ const Main = () => {
                             <View className='flex-1 flex items-center'>
                                 <Text className='dark:text-white text-base font-medium'>Enter Type</Text>
                             </View>
-                        </Pressable>
+                        </TouchableOpacity>
                     </View>}
                 {message !== "" && !loader && checkBusinessMethod &&
                     <Text className={`mb-4 mt-4 border shadow-md border-slate-200 rounded-md text-center p-2 ${!message.includes("successfully") ? "text-red-500 bg-red-100" : "bg-green-400"}`}>
@@ -117,7 +121,7 @@ const Main = () => {
                     </View>}
                 {codeError && checkBusinessMethod && showInputMethod && <Text className='text-red-500 text-xs ml-12'>Please Enter a valid input!</Text>}
                 {checkBusinessMethod && showInputMethod &&
-                    <Pressable
+                    <TouchableOpacity
                         onPress={() => {
                             if (!loader) {
                                 handleSearchBusinessType()
@@ -125,12 +129,12 @@ const Main = () => {
                         }}
                         className={`h-12 mt-6 w-full ${loader && "bg-blue-100"} ${codeError ? "border-red-400 bg-red-300" : "border-slate-200"} border border-slate-200 rounded-md flex flex-row justify-center items-center px-6`}
                     >
-                        <View className={`flex-1 flex flex-row justify-center items-center ${loader && "bg-blue-100"} ${codeError ? "border-red-400 bg-red-300" : "border-slate-200"}`}>
+                        <View className={`flex-1 flex flex-row justify-center items-center ${codeError ? "border-red-400" : "border-slate-200"}`}>
                             {loader && <ActivityIndicator size="small" color="blue" className='mr-8' />}
                             <Text className='dark:text-white text-base font-medium'>{loader ? "Processing..." : "Submit"}</Text>
                         </View>
-                    </Pressable>}
-                <Pressable
+                    </TouchableOpacity>}
+                <TouchableOpacity
                     onPress={() => {
                         router.push("/RegisterBusiness")
                     }}
@@ -139,7 +143,7 @@ const Main = () => {
                     <View className='flex-1 flex items-center'>
                         <Text className='dark:text-white text-base font-medium'>Register business</Text>
                     </View>
-                </Pressable>
+                </TouchableOpacity>
             </View>
         </View>
     )

@@ -1,6 +1,6 @@
-import { Link, router, useFocusEffect } from 'expo-router'
+import { router, useFocusEffect } from 'expo-router'
 import React, { useState } from 'react'
-import { View, Text, TextInput, Pressable } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity } from 'react-native'
 
 const ForgotPassword = () => {
 
@@ -43,7 +43,7 @@ const ForgotPassword = () => {
                     placeholderTextColor="#000"
                     placeholder="Enter phone number"
                 />
-                <Pressable
+                <TouchableOpacity
                     onPress={() => {
                         handleForgotPassword()
                     }}
@@ -52,7 +52,7 @@ const ForgotPassword = () => {
                     <View className='flex-1 flex items-center bg-red-100'>
                         <Text className='dark:text-white text-base font-medium'>Reset Password</Text>
                     </View>
-                </Pressable>
+                </TouchableOpacity>
             </View>
         </View >
     )

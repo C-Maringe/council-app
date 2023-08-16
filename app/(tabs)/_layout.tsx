@@ -87,6 +87,28 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="MakePayment/[id]"
+        options={{
+          title: 'Make payment',
+          tabBarStyle: { display: 'none' },
+          href: null,
+          headerLeft: () => (
+            <Link href="/(tabs)/pages/Main" asChild>
+              <Pressable>
+                {({ pressed }) => (
+                  <AntDesign
+                    name="arrowleft"
+                    size={25}
+                    color={Colors[colorScheme ?? 'light'].text}
+                    style={{ marginLeft: 15, opacity: pressed ? 0.5 : 1 }}
+                  />
+                )}
+              </Pressable>
+            </Link>
+          ),
+        }}
+      />
     </Tabs>
   );
 }
