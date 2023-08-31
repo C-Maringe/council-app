@@ -8,12 +8,15 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
 
 async function save(key: string, value: string) {
   await SecureStore.setItemAsync(key, value);
 }
 
 const Login = () => {
+
+  const dispatch = useDispatch();
 
   const navigation = useNavigation()
   const [isReady, setIsReady] = useState(false)
@@ -79,8 +82,10 @@ const Login = () => {
                 router.push("/(tabs)/pages/Main")
               }, 2000)
               if (isChecked) {
+                dispatch({ type: "DISPATCH_USER_DETAILS_DATA", payload: response.data })
                 save("userDetails", JSON.stringify(response.data) + "keep");
               } else {
+                dispatch({ type: "DISPATCH_USER_DETAILS_DATA", payload: response.data })
                 save("userDetails", JSON.stringify(response.data));
               }
             } else {
@@ -179,7 +184,7 @@ const Login = () => {
           }}
           className={`h-12 border ${loader && "bg-blue-100"} ${passwordError || phoneNumberError ? "border-red-400 bg-red-300" : "border-slate-200"} rounded-md flex flex-row justify-center items-center px-6`}
         >
-          <View className={`flex-1 flex flex-row justify-center items-center ${passwordError || phoneNumberError ? "border-red-400 bg-red-300" : "border-slate-200"}`}>
+          <View className={`flex-1 flex flex-row justify-center items-center ${loader && "bg-blue-100"} ${phoneNumberError || passwordError ? "border-red-400 bg-red-300" : "border-slate-200"}`}>
             {loader && <ActivityIndicator size="small" color="blue" className='mr-8' />}
             <Text className={`dark:text-white text-base font-medium `}>{loader ? "Processing..." : "Login"}</Text>
           </View>

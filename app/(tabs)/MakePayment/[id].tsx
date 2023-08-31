@@ -6,18 +6,11 @@ import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 
-async function getValueFor(key: string) {
-    let result = await SecureStore.getItemAsync(key);
-    if (result?.includes("keep")) {
-        return JSON.parse(result?.split("keep")[0])
-    } else {
-        return result
-    }
-}
-
 const MakePayment = () => {
 
     const selector = useSelector(state => state.LicenceData.data)
+
+    const selectorUserDetails = useSelector(state => state.UserDetails.data)
 
     const [loader, setLoader] = useState(false);
 
@@ -37,22 +30,17 @@ const MakePayment = () => {
     )
 
     const path = usePathname()
-    const [userDetails, setUserDetails] = useState({ data: { id: 0 } });
-
-    useEffect(() => {
-        getValueFor("userDetails").then((response) => { setUserDetails(response) }).catch((error) => { console.log(error) })
-    }, [])
 
     const handleMakePayment = () => {
         try {
+            const payload = {
+                amount: +amount,
+                employee_id: selectorUserDetails?.data.id,
+                business_id: +path?.split("MakePayment/")[1],
+                created_by: 1,
+                updated_by: 1
+            }
             if (amount !== "" && +amount > 0) {
-                const payload = {
-                    amount: +amount,
-                    employee_id: userDetails?.data.id,
-                    business_id: +path?.split("MakePayment/")[1],
-                    created_by: 1,
-                    updated_by: 1
-                }
                 setLoader(true)
                 axios.post('http://207.180.226.46:3456/api/v1/transactions/store', payload)
                     .then((response) => {
@@ -78,6 +66,7 @@ const MakePayment = () => {
                 setAmountError(true)
             }
         } catch (error) {
+            console.log(error)
             setAmountError(true)
         }
     }
